@@ -1,0 +1,152 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+
+model User {
+  id         Int       @id @default(autoincrement())
+  username   String    @unique
+  password   String
+  role       Role      @default(WAITER)
+  created_at DateTime  @default(now())
+  updated_at DateTime  @updatedAt
+  orders     Order[]   @relation("WaiterOrders")
+  payments   Payment[] @relation("CashierPayments")
+}
+
+enum Role {
+  ADMIN
+  CASHIER
+  WAITER
+  OWNER
+}
+
+model Kitchen {
+  id          Int       @id @default(autoincrement())
+  name        String    @unique
+  use_printer Boolean   @default(true)
+  printer_ip  String?
+  status      KitchenStatus @default(ACTIVE)
+  created_at  DateTime  @default(now())
+  updated_at  DateTime  @updatedAt
+  menus       Menu[]
+}
+
+enum KitchenStatus {
+  ACTIVE
+  INACTIVE
+  MAINTENANCE
+}
+
+model Menu {
+  id          Int         @id @default(autoincrement())
+  name        String
+  description String?     @default("")
+  price       Float
+  is_buffet   Boolean     @default(false)
+  category_id Int?
+  category    Category?   @relation(fields: [category_id], references: [id])
+  kitchen_id  Int?
+  kitchen     Kitchen?    @relation(fields: [kitchen_id], references: [id])
+  created_at  DateTime    @default(now())
+  updated_at  DateTime    @updatedAt
+  is_available Boolean    @default(true)
+  order_items OrderItem[]
+}
+
+model Category {
+  id          Int      @id @default(autoincrement())
+  name        String   @unique
+  description String?
+  created_at  DateTime @default(now())
+  updated_at  DateTime @updatedAt
+  menus       Menu[]
+}
+
+model Table {
+  id           Int       @id @default(autoincrement())
+  table_number String    @unique // Nomor meja unik, misalnya "A1", "B2"
+  is_available Boolean   @default(true) // Status ketersediaan meja
+  created_at   DateTime  @default(now())
+  updated_at   DateTime  @updatedAt
+  orders       Order[]   // Relasi ke pesanan yang menggunakan meja ini
+}
+
+model Order {
+  id           Int         @id @default(autoincrement())
+  order_number String      @unique
+  customer_name String?    @default("")
+  table_id     Int?        // Opsional, hanya untuk DINE_IN
+  table        Table?      @relation(fields: [table_id], references: [id])
+  order_type   OrderType   @default(DINE_IN)
+  waiter_id    Int
+  waiter       User        @relation("WaiterOrders", fields: [waiter_id], references: [id])
+  status       OrderStatus @default(PENDING)
+  created_at   DateTime    @default(now())
+  updated_at   DateTime    @updatedAt
+  order_items  OrderItem[]
+  payment_id   Int?
+  payment      Payment?    @relation(fields: [payment_id], references: [id])
+}
+
+enum OrderType {
+  DINE_IN
+  TAKEAWAY
+}
+
+enum OrderStatus {
+  PENDING
+  IN_PROGRESS
+  READY
+  COMPLETED
+  CANCELLED
+}
+
+model OrderItem {
+  id         Int           @id @default(autoincrement())
+  order_id   Int
+  order      Order         @relation(fields: [order_id], references: [id], onDelete: Cascade)
+  menu_id    Int?
+  menu       Menu?         @relation(fields: [menu_id], references: [id])
+  // Snapshot data for payment calculations
+  menu_name  String
+  menu_price Float
+  category_id Int?
+  category_name String?
+  kitchen_id Int?
+  kitchen_name String?
+  is_buffet  Boolean       @default(false)
+  quantity   Int           @default(1)
+  notes      String?
+  status     OrderStatus   @default(PENDING)
+  created_at DateTime      @default(now())
+  updated_at DateTime      @updatedAt
+}
+
+model Payment {
+  id             Int           @id @default(autoincrement()) 
+  cashier_id     Int
+  cashier        User          @relation("CashierPayments", fields: [cashier_id], references: [id])
+  total_amount   Float
+  cash           Float?
+  change         Float?
+  payment_method PaymentMethod @default(CASH)
+  created_at     DateTime      @default(now())
+  orders         Order[]
+}
+
+enum PaymentMethod {
+  CASH
+  QRIS
+}
