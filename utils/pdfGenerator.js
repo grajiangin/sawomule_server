@@ -11,12 +11,12 @@ class PDFGenerator {
     
     // Use default fonts for PDFMake
     this.printer = new PdfPrinter({
-      // Roboto: {
-      //   normal: 'Helvetica',
-      //   bold: 'Helvetica-Bold',
-      //   italics: 'Helvetica-Oblique',
-      //   bolditalics: 'Helvetica-BoldOblique'
-      // }
+      Roboto: {
+        normal: 'Helvetica',
+        bold: 'Helvetica-Bold',
+        italics: 'Helvetica-Oblique',
+        bolditalics: 'Helvetica-BoldOblique'
+      }
     });
 
     // Initialize Chart.js canvas renderer with font fallback for headless systems
@@ -33,7 +33,7 @@ class PDFGenerator {
           try {
             // Use basic fonts that work on headless systems
             ChartJS.defaults.font = ChartJS.defaults.font || {};
-            ChartJS.defaults.font.family = 'monospace';
+            // ChartJS.defaults.font.family = 'monospace';
             ChartJS.defaults.font.size = 12;
             ChartJS.defaults.font.weight = 'normal';
             ChartJS.defaults.font.lineHeight = 1.2;
@@ -70,7 +70,7 @@ class PDFGenerator {
         pageSize: 'A4',
         pageMargins: [40, 60, 40, 60],
         defaultStyle: {
-          // font: 'Roboto',
+          font: 'Roboto',
           fontSize: 10
         },
         styles: {
@@ -195,7 +195,7 @@ class PDFGenerator {
         pageSize: 'A4',
         pageMargins: [40, 60, 40, 60],
         defaultStyle: {
-          // font: 'Roboto',
+          font: 'Roboto',
           fontSize: 10
         },
         styles: {
