@@ -15,11 +15,17 @@ class PDFGenerator {
       }
     });
 
-    // Initialize Chart.js canvas renderer
+    // Initialize Chart.js canvas renderer with safe fonts
     this.chartJSNodeCanvas = new ChartJSNodeCanvas({ 
       width: 800, 
       height: 400,
-      backgroundColour: 'white'
+      backgroundColour: 'white',
+      chartCallback: (ChartJS) => {
+        // Register safe fonts that work across platforms
+        ChartJS.defaults.font.family = 'Arial, sans-serif';
+        ChartJS.defaults.font.size = 12;
+        ChartJS.defaults.font.weight = 'normal';
+      }
     });
   }
 
@@ -422,6 +428,7 @@ class PDFGenerator {
               display: true,
               text: 'Pendapatan Harian',
               font: {
+                family: 'Arial, sans-serif',
                 size: 16,
                 weight: 'bold'
               }
@@ -434,6 +441,10 @@ class PDFGenerator {
             y: {
               beginAtZero: true,
               ticks: {
+                font: {
+                  family: 'Arial, sans-serif',
+                  size: 10
+                },
                 callback: function(value) {
                   return new Intl.NumberFormat('id-ID', {
                     style: 'currency',
@@ -446,6 +457,10 @@ class PDFGenerator {
             },
             x: {
               ticks: {
+                font: {
+                  family: 'Arial, sans-serif',
+                  size: 10
+                },
                 maxRotation: 45,
                 minRotation: 0
               }
@@ -532,6 +547,7 @@ class PDFGenerator {
               display: true,
               text: 'Distribusi Metode Pembayaran',
               font: {
+                family: 'Arial, sans-serif',
                 size: 16,
                 weight: 'bold'
               }
@@ -539,6 +555,10 @@ class PDFGenerator {
             legend: {
               position: 'bottom',
               labels: {
+                font: {
+                  family: 'Arial, sans-serif',
+                  size: 12
+                },
                 generateLabels: function(chart) {
                   const data = chart.data;
                   if (data.labels.length && data.datasets.length) {
@@ -639,6 +659,7 @@ class PDFGenerator {
               display: true,
               text: 'Menu Terpopuler (Top 5)',
               font: {
+                family: 'Arial, sans-serif',
                 size: 16,
                 weight: 'bold'
               }
@@ -646,6 +667,10 @@ class PDFGenerator {
             legend: {
               position: 'bottom',
               labels: {
+                font: {
+                  family: 'Arial, sans-serif',
+                  size: 12
+                },
                 generateLabels: function(chart) {
                   const data = chart.data;
                   if (data.labels.length && data.datasets.length) {

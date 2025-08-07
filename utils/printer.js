@@ -428,7 +428,7 @@ class PrinterManager {
             for (const [name, printer] of Object.entries(this.printers)) {
                 try {
                     const isConnected = await printer.isPrinterConnected();
-  //                  console.log(`Printer ${name} is ${isConnected ? 'connected' : 'disconnected'}`);
+                   console.log(`Printer ${name} is ${isConnected ? 'connected' : 'disconnected'}`);
                 } catch (error) {
                     console.error(`Error checking connection for printer ${name}:`, error);
                 }
@@ -437,5 +437,5 @@ class PrinterManager {
     }
 }
 
-// module.exports = new PrinterManager(); 
+module.exports = new PrinterManager(); 
 
