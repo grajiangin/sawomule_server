@@ -95,6 +95,9 @@ model Order {
   status       OrderStatus @default(PENDING)
   created_at   DateTime    @default(now())
   updated_at   DateTime    @updatedAt
+  served_at    DateTime?
+  completed_at DateTime?
+  // Payment
   order_items  OrderItem[]
   payment_id   Int?
   payment      Payment?    @relation(fields: [payment_id], references: [id])
@@ -131,6 +134,9 @@ model OrderItem {
   notes      String?
   status     OrderStatus   @default(PENDING)
   created_at DateTime      @default(now())
+  served_at    DateTime?
+  completed_at DateTime?
+  cancelled_at DateTime?
   updated_at DateTime      @updatedAt
 }
 

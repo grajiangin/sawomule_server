@@ -104,7 +104,6 @@ router.get('/', async (req, res) => {
     // Validate status if provided
     const validStatuses = ['PENDING', 'IN_PROGRESS', 'READY', 'COMPLETED', 'CANCELLED'];
     if (status && !validStatuses.includes(status)) {
-      
       return res.status(400).json({
         status: 'fail',
         message: `Invalid status. Must be one of: ${validStatuses.join(', ')}`
@@ -474,6 +473,20 @@ router.put('/:id/status', async (req, res) => {
       });
     }
 
+    if(status === 'COMPLETED') {
+      await prisma.order.update({
+        where: { id: Number(id) },
+        data: { completed_at: new Date() }
+      });
+    }
+
+    if(status === 'READY') {
+      await prisma.order.update({
+        where: { id: Number(id) },
+        data: { served_at: new Date() }
+      });
+    }
+    
     res.status(200).json(updatedOrder);
   } catch (error) {
     res.status(400).json({
@@ -507,6 +520,9 @@ router.post('/:id/items', async (req, res) => {
         message: `Cannot add items to ${order.status.toLowerCase()} orders`
       });
     }
+
+  
+
 
     // Fetch menu items to get snapshot data
     const menuItems = await prisma.menu.findMany({
@@ -562,6 +578,8 @@ router.post('/:id/items', async (req, res) => {
         }
       }
     });
+
+    
 
     res.status(200).json(updatedOrder);
   } catch (error) {
@@ -676,6 +694,22 @@ router.put('/items/:itemId/status', async (req, res) => {
       }
     });
 
+
+    if(status === 'COMPLETED' || status === 'CANCELLED') {
+      await prisma.orderItem.update({
+        where: { id: Number(itemId) },
+        data: { completed_at: new Date() }
+      });
+    }
+
+    if(status === 'READY') {
+      await prisma.orderItem.update({
+        where: { id: Number(itemId) },
+        data: { served_at: new Date() }
+      });
+    }
+
+
     // Check if all items are completed or cancelled to update order status
     const allOrderItems = await prisma.orderItem.findMany({
       where: { order_id: orderItem.order_id }
@@ -684,13 +718,15 @@ router.put('/items/:itemId/status', async (req, res) => {
     const allItemsCompleted = allOrderItems.every(item =>
       ['COMPLETED', 'CANCELLED'].includes(item.status)
     );
+    
 
     if (allItemsCompleted) {
       await prisma.order.update({
         where: { id: orderItem.order_id },
         data: {
           status: 'COMPLETED',
-          updated_at: new Date()
+          updated_at: new Date(),
+          completed_at: new Date()
         }
       });
 
