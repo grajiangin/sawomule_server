@@ -5,6 +5,10 @@ const { ChartJSNodeCanvas } = require('chartjs-node-canvas');
 
 class PDFGenerator {
   constructor() {
+    // Set environment variables to avoid fontconfig issues on headless systems
+    process.env.FONTCONFIG_PATH = process.env.FONTCONFIG_PATH || '/dev/null';
+    process.env.FC_DEBUG = '0';
+    
     // Use default fonts for PDFMake
     this.printer = new PdfPrinter({
       Roboto: {
@@ -15,18 +19,39 @@ class PDFGenerator {
       }
     });
 
-    // Initialize Chart.js canvas renderer with safe fonts
-    this.chartJSNodeCanvas = new ChartJSNodeCanvas({ 
-      width: 800, 
-      height: 400,
-      backgroundColour: 'white',
-      chartCallback: (ChartJS) => {
-        // Register safe fonts that work across platforms
-        ChartJS.defaults.font.family = 'Arial, sans-serif';
-        ChartJS.defaults.font.size = 12;
-        ChartJS.defaults.font.weight = 'normal';
-      }
-    });
+    // Initialize Chart.js canvas renderer with font fallback for headless systems
+    try {
+      this.chartJSNodeCanvas = new ChartJSNodeCanvas({ 
+        width: 800, 
+        height: 400,
+        backgroundColour: 'white',
+        plugins: {
+          modern: [],
+          requireLegacy: []
+        },
+        chartCallback: (ChartJS) => {
+          try {
+            // Use basic fonts that work on headless systems
+            ChartJS.defaults.font = ChartJS.defaults.font || {};
+            ChartJS.defaults.font.family = 'monospace';
+            ChartJS.defaults.font.size = 12;
+            ChartJS.defaults.font.weight = 'normal';
+            ChartJS.defaults.font.lineHeight = 1.2;
+            
+            // Suppress font-related warnings
+            ChartJS.defaults.plugins = ChartJS.defaults.plugins || {};
+            ChartJS.defaults.plugins.legend = ChartJS.defaults.plugins.legend || {};
+            ChartJS.defaults.plugins.legend.labels = ChartJS.defaults.plugins.legend.labels || {};
+            ChartJS.defaults.plugins.legend.labels.usePointStyle = false;
+          } catch (fontError) {
+            console.warn('Chart font configuration warning (non-critical):', fontError.message);
+          }
+        }
+      });
+    } catch (canvasError) {
+      console.error('ChartJS Canvas initialization error:', canvasError);
+      this.chartJSNodeCanvas = null;
+    }
   }
 
   async generateAnalyticsReport(data, range, startDate, endDate) {
@@ -394,6 +419,17 @@ class PDFGenerator {
     }
 
     try {
+      // Check if chart canvas is available
+      if (!this.chartJSNodeCanvas) {
+        return [
+          {
+            text: 'Grafik tidak tersedia (sistem headless)',
+            style: 'noDataText',
+            margin: [0, 20, 0, 20]
+          }
+        ];
+      }
+
       // Prepare data for Chart.js
       const labels = chartData.map(item => {
         if (daysDiff > 30) {
@@ -428,7 +464,7 @@ class PDFGenerator {
               display: true,
               text: 'Pendapatan Harian',
               font: {
-                family: 'Arial, sans-serif',
+                family: 'monospace',
                 size: 16,
                 weight: 'bold'
               }
@@ -442,7 +478,7 @@ class PDFGenerator {
               beginAtZero: true,
               ticks: {
                 font: {
-                  family: 'Arial, sans-serif',
+                  family: 'monospace',
                   size: 10
                 },
                 callback: function(value) {
@@ -458,7 +494,7 @@ class PDFGenerator {
             x: {
               ticks: {
                 font: {
-                  family: 'Arial, sans-serif',
+                  family: 'monospace',
                   size: 10
                 },
                 maxRotation: 45,
@@ -512,6 +548,17 @@ class PDFGenerator {
       ];
     }
 
+    // Check if chart canvas is available
+    if (!this.chartJSNodeCanvas) {
+      return [
+        {
+          text: 'Grafik tidak tersedia (sistem headless)',
+          style: 'noDataText',
+          margin: [0, 20, 0, 20]
+        }
+      ];
+    }
+
     try {
       const paymentData = [];
       const labels = [];
@@ -547,7 +594,7 @@ class PDFGenerator {
               display: true,
               text: 'Distribusi Metode Pembayaran',
               font: {
-                family: 'Arial, sans-serif',
+                family: 'monospace',
                 size: 16,
                 weight: 'bold'
               }
@@ -556,7 +603,7 @@ class PDFGenerator {
               position: 'bottom',
               labels: {
                 font: {
-                  family: 'Arial, sans-serif',
+                  family: 'monospace',
                   size: 12
                 },
                 generateLabels: function(chart) {
@@ -626,6 +673,17 @@ class PDFGenerator {
       ];
     }
 
+    // Check if chart canvas is available
+    if (!this.chartJSNodeCanvas) {
+      return [
+        {
+          text: 'Grafik tidak tersedia (sistem headless)',
+          style: 'noDataText',
+          margin: [0, 20, 0, 20]
+        }
+      ];
+    }
+
     try {
       // Take top 5 menus for the pie chart
       const top5Menus = topMenus.slice(0, 5);
@@ -659,7 +717,7 @@ class PDFGenerator {
               display: true,
               text: 'Menu Terpopuler (Top 5)',
               font: {
-                family: 'Arial, sans-serif',
+                family: 'monospace',
                 size: 16,
                 weight: 'bold'
               }
@@ -668,7 +726,7 @@ class PDFGenerator {
               position: 'bottom',
               labels: {
                 font: {
-                  family: 'Arial, sans-serif',
+                  family: 'monospace',
                   size: 12
                 },
                 generateLabels: function(chart) {
