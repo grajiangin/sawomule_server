@@ -70,7 +70,7 @@ class PDFGenerator {
         pageSize: 'A4',
         pageMargins: [40, 60, 40, 60],
         defaultStyle: {
-          font: 'Roboto',
+          // font: 'Roboto',
           fontSize: 10
         },
         styles: {
@@ -195,7 +195,7 @@ class PDFGenerator {
         pageSize: 'A4',
         pageMargins: [40, 60, 40, 60],
         defaultStyle: {
-          font: 'Roboto',
+          // font: 'Roboto',
           fontSize: 10
         },
         styles: {
