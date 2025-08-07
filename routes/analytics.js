@@ -429,7 +429,9 @@ router.get('/realtime_data', auth, async (req, res) => {
         availability: table.availability
       })),
       active_orders: activeOrders.map(order => {
-        console.log(order.created_at);
+        // Convert order.created_at to local time and log it
+        const createdAt = new Date(order.created_at);
+        order.created_at = createdAt.toLocaleString();
         return order
       })
     });
