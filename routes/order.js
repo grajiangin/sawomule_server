@@ -216,7 +216,7 @@ router.get('/:identifier', async (req, res) => {
                 username: true,
                 role: true
               }
-            }
+            } 
           }
         }
       }
