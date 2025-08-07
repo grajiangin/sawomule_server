@@ -11,12 +11,12 @@ class PDFGenerator {
     
     // Use default fonts for PDFMake
     this.printer = new PdfPrinter({
-      Roboto: {
-        normal: 'Helvetica',
-        bold: 'Helvetica-Bold',
-        italics: 'Helvetica-Oblique',
-        bolditalics: 'Helvetica-BoldOblique'
-      }
+      // Roboto: {
+      //   normal: 'Helvetica',
+      //   bold: 'Helvetica-Bold',
+      //   italics: 'Helvetica-Oblique',
+      //   bolditalics: 'Helvetica-BoldOblique'
+      // }
     });
 
     // Initialize Chart.js canvas renderer with font fallback for headless systems
