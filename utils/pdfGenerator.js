@@ -32,7 +32,7 @@ class PDFGenerator {
         chartCallback: (ChartJS) => {
           try {
             // Use basic fonts that work on headless systems
-            ChartJS.defaults.font = ChartJS.defaults.font || {};
+            // ChartJS.defaults.font = ChartJS.defaults.font || {};
             // ChartJS.defaults.font.family = 'monospace';
             ChartJS.defaults.font.size = 12;
             ChartJS.defaults.font.weight = 'normal';

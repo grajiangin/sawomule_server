@@ -404,12 +404,13 @@ router.get('/realtime_data', auth, async (req, res) => {
         table_number: 'asc'
       }
     });
+
+    
     activeOrders.forEach(order => {
       tables.forEach(table => {
-        console.log("HERE!");
+        // console.log("HERE!");
         if (table.id === order.table_id) {
           table.availability = false;
-          console.log(tables);
         }
       });
     });
@@ -427,7 +428,10 @@ router.get('/realtime_data', auth, async (req, res) => {
         name: table.table_number,
         availability: table.availability
       })),
-      active_orders: activeOrders
+      active_orders: activeOrders.map(order => {
+        console.log(order.created_at);
+        return order
+      })
     });
   } catch (error) {
     console.log(error);
